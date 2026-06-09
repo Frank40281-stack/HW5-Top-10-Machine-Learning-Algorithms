@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>機器學習 Top 10 演算法互動學習平台 | Interactive ML Learning Hub</title>
+    <meta name="description" content="一個以豐富視覺與高互動性設計的機器學習 Top 10 演算法學習平台，包含即時動態模擬、精選程式碼、觀念問答與演算法評估。">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* CSS RESET & VARIABLES */
+        :root {
+            --bg-dark: #0B0F19;
+            --bg-card: rgba(20, 27, 45, 0.7);
+            --bg-card-hover: rgba(30, 37, 55, 0.85);
+            --border-glow: rgba(255, 255, 255, 0.08);
+            
+            /* Algorithm Category Colors */
+            --regression-color: #6366F1; /* Indigo */
+            --regression-glow: rgba(99, 102, 241, 0.15);
+            --classification-color: #10B981; /* Emerald */
+            --classification-glow: rgba(16, 185, 129, 0.15);
+            --clustering-color: #F59E0B; /* Amber */
+            --clustering-glow: rgba(245, 158, 11, 0.15);
+            --pca-color: #06B6D4; /* Cyan */
+            --pca-glow: rgba(6, 182, 212, 0.15);
+
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --text-dark: #1F2937;
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 15, 25, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* LAYOUT CONTAINER */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(245, 158, 11, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 350px;
+            background: rgba(13, 18, 30, 0.9);
+            border-right: 1px solid var(--border-glow);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-shrink: 0;
+            backdrop-filter: blur(20px);
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--regression-color), var(--classification-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text h2 {
+            font-size: 1.25rem;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .algo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 0.25rem;
+        }
+
+        .algo-item {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algo-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: transparent;
+            transition: var(--transition-smooth);
+        }
+
+        .algo-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(3px);
+        }
+
+        .algo-item.active {
+            background: var(--bg-card);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .algo-item.active.regression::before { background: var(--regression-color); }
+        .algo-item.active.classification::before { background: var(--classification-color); }
+        .algo-item.active.clustering::before { background: var(--clustering-color); }
+        .algo-item.active.pca::before { background: var(--pca-color); }
+
+        .algo-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .algo-badge {
+            align-self: flex-start;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .regression .algo-badge { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .classification .algo-badge { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .clustering .algo-badge { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .pca .algo-badge { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* TOP HEADER CARD */
+        .header-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-card::after {
+            content: '';
+            position: absolute;
+            right: -100px;
+            top: -100px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        .header-card.regression::after { background: var(--regression-color); }
+        .header-card.classification::after { background: var(--classification-color); }
+        .header-card.clustering::after { background: var(--clustering-color); }
+        .header-card.pca::after { background: var(--pca-color); }
+
+        .header-left {
+            z-index: 2;
+        }
+
+        .module-indicator {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .module-indicator span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .regression .module-indicator span { background-color: var(--regression-color); }
+        .classification .module-indicator span { background-color: var(--classification-color); }
+        .clustering .module-indicator span { background-color: var(--clustering-color); }
+        .pca .module-indicator span { background-color: var(--pca-color); }
+
+        .algo-title {
+            font-size: 2.2rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .formula-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 3px solid transparent;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .regression .formula-box { border-left-color: var(--regression-color); }
+        .classification .formula-box { border-left-color: var(--classification-color); }
+        .clustering .formula-box { border-left-color: var(--clustering-color); }
+        .pca .formula-box { border-left-color: var(--pca-color); }
+
+        .formula-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* GRID: SANDBOX & DETAILS */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 550px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* SANDBOX CARD */
+        .sandbox-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sandbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sandbox-title {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sandbox-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: #060913;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            aspect-ratio: 1;
+            width: 100%;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .canvas-overlay-coords {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+
+        /* CONTROLS AREA */
+        .controls-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .class-selector {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-class {
+            flex: 1;
+            padding: 0.6rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-class.active[data-class="0"] {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #c084fc;
+        }
+
+        .btn-class.active[data-class="1"] {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #22d3ee;
+        }
+
+        .bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .bullet-purple { background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+        .bullet-cyan { background: #06b6d4; box-shadow: 0 0 8px #06b6d4; }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--regression-color);
+            border-color: transparent;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+        }
+
+        /* PARAMETER ADJUSTMENT PANELS */
+        .param-panel {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .param-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .param-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .param-value {
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--regression-color);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: var(--transition-smooth);
+        }
+
+        .regression .slider::-webkit-slider-thumb { background: var(--regression-color); }
+        .classification .slider::-webkit-slider-thumb { background: var(--classification-color); }
+        .clustering .slider::-webkit-slider-thumb { background: var(--clustering-color); }
+        .pca .slider::-webkit-slider-thumb { background: var(--pca-color); }
+
+        .select-input {
+            background: rgba(13, 18, 30, 0.9);
+            color: var(--text-main);
+            border: 1px solid var(--border-glow);
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* METRICS PANEL */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+        }
+
+        .metric-lbl {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* TABS PANEL FOR DETAILS */
+        .details-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-glow);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-btn.active {
+            color: white;
+        }
+
+        .regression .tab-btn.active { border-bottom-color: var(--regression-color); }
+        .classification .tab-btn.active { border-bottom-color: var(--classification-color); }
+        .clustering .tab-btn.active { border-bottom-color: var(--clustering-color); }
+        .pca .tab-btn.active { border-bottom-color: var(--pca-color); }
+
+        .tab-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: none;
+            overflow-y: auto;
+            max-height: 550px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CONCEPT TAB STYLING */
+        .concept-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .concept-title {
+            font-size: 1.1rem;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.35rem;
+        }
+
+        .pros-cons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .pros-cons-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-pros, .card-cons {
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .card-pros {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        .card-cons {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        .card-pros h4 { color: #34d399; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .card-cons h4 { color: #f87171; margin-bottom: 0.5rem; font-size: 0.95rem; }
+
+        .card-pros ul, .card-cons ul {
+            padding-left: 1.1rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        /* QUIZ TAB STYLING */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .quiz-question {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+
+        .quiz-option.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .quiz-option-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .quiz-option.correct .quiz-option-marker {
+            background: #10b981;
+            border-color: transparent;
+            color: white;
+        }
+
+        .quiz-option.incorrect .quiz-option-marker {
+            background: #ef4444;
+            border-color: transparent;
+            color: white;
+        }
+
+        .quiz-feedback {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .quiz-feedback p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        /* CODE TAB STYLING */
+        .code-container {
+            position: relative;
+        }
+
+        .code-box {
+            background: #060913;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: #e2e8f0;
+            margin-top: 1rem;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-weight: 600;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-glow);
+                padding: 1.5rem;
+            }
+            .algo-list {
+                flex-direction: row;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                height: auto;
+                padding-bottom: 0.5rem;
+            }
+            .algo-item {
+                flex-shrink: 0;
+                width: 220px;
+            }
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">ML</div>
+            <div class="logo-text">
+                <h2>機器學習講堂</h2>
+                <p>HW5 TOP 10 ALGORITHMS</p>
+            </div>
+        </div>
+        
+        <div class="algo-list" id="algoList">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="mainContent">
+        <!-- TOP INFO HEADER -->
+        <div class="header-card" id="headerCard">
+            <div class="header-left">
+                <div class="module-indicator" id="algoModule">
+                    <span></span> MODULE INDICATOR
+                </div>
+                <h1 class="algo-title" id="algoTitle">載入中...</h1>
+                <div class="formula-box">
+                    <span class="formula-label">核心數學式</span>
+                    <span id="algoFormula">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID WORKSPACE -->
+        <div class="workspace-grid">
+            <!-- LEFT: SANDBOX -->
+            <div class="sandbox-card" id="sandboxCard">
+                <div class="sandbox-header">
+                    <div>
+                        <h3 class="sandbox-title">🧠 演算法即時沙盒</h3>
+                        <p class="sandbox-subtitle" id="sandboxHint">點擊畫布以增加數據點</p>
+                    </div>
+                    <!-- Reset button -->
+                    <button class="btn" id="btnClear" style="flex: 0 0 auto; padding: 0.4rem 0.75rem;">
+                        🔄 清除點
+                    </button>
+                </div>
+
+                <!-- Canvas -->
+                <div class="canvas-wrapper">
+                    <canvas id="visualizerCanvas" width="500" height="500"></canvas>
+                    <div class="canvas-overlay-coords" id="coordsOverlay">X: 0.00, Y: 0.00</div>
+                </div>
+
+                <!-- Interactive controls -->
+                <div class="controls-area">
+                    <!-- Class selector (for classification) -->
+                    <div class="class-selector" id="classSelector">
+                        <button class="btn-class active" data-class="0">
+                            <span class="bullet bullet-purple"></span>
+                            類別 A (Purple)
+                        </button>
+                        <button class="btn-class" data-class="1">
+                            <span class="bullet bullet-cyan"></span>
+                            類別 B (Cyan)
+                        </button>
+                    </div>
+
+                    <!-- Sandbox options / parameters -->
+                    <div class="param-panel" id="paramPanel">
+                        <!-- Loaded dynamically -->
+                    </div>
+
+                    <!-- Metrics / Evaluations -->
+                    <div class="metrics-grid" id="metricsGrid">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: DETAILED KNOWLEDGE -->
+            <div class="details-card">
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="concept">觀念解析</button>
+                    <button class="tab-btn" data-tab="quiz">隨堂小測驗</button>
+                    <button class="tab-btn" data-tab="code">程式碼實驗室</button>
+                </div>
+
+                <!-- TAB 1: CONCEPT -->
+                <div class="tab-content active" id="tab-concept">
+                    <div class="concept-section">
+                        <div>
+                            <h3 class="concept-title">📘 演算法簡介 & 優化目標</h3>
+                            <p id="conceptText" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;"></p>
+                        </div>
+
+                        <div class="pros-cons-grid">
+                            <div class="card-pros">
+                                <h4>✅ 主要優勢 (Pros)</h4>
+                                <ul id="conceptPros"></ul>
+                            </div>
+                            <div class="card-cons">
+                                <h4>❌ 主要劣勢 (Cons)</h4>
+                                <ul id="conceptCons"></ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="concept-title">🎯 常見應用場景</h3>
+                            <p id="conceptUseCases" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: QUIZ -->
+                <div class="tab-content" id="tab-quiz">
+                    <div class="quiz-container">
+                        <div class="quiz-question" id="quizQuestion">題目載入中...</div>
+                        <div class="quiz-options" id="quizOptions">
+                            <!-- Populated -->
+                        </div>
+                        <div class="quiz-feedback" id="quizFeedback">
+                            <h4 id="feedbackTitle">正確性</h4>
+                            <p id="feedbackText">解析...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CODE -->
+                <div class="tab-content" id="tab-code">
+                    <div class="code-container">
+                        <h3 class="concept-title">💻 Python Scikit-Learn 實作範例</h3>
+                        <button class="btn-copy" id="btnCopyCode">複製代碼</button>
+                        <pre class="code-box"><code id="codeSnippet">Loading...</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // ALGORITHMS DATABASE
+    // ----------------------------------------------------
+    const ALGO_DATA = {
+        linear_regression: {
+            id: 'linear_regression',
+            name: '線性迴歸 (Linear Regression)',
+            category: 'regression',
+            module: 'Module 2: 預測與幾何分類',
+            formula: 'y = w₁x + w₀',
+            optimization: '最小化殘差平方和 (RSS): Σ(y_i - ŷ_i)²',
+            concept: '線性迴歸建立連續型目標與特徵之間的線性邊界關係。藉由最小平方法(OLS)計算極小化目標變異的權重係數。當特徵共線時可加入 Ridge (L2) 或 Lasso (L1) 常規項。',
+            pros: [
+                '解釋性極高，係數大小直接代表特徵權重影響。',
+                '計算複雜度極低，適合極大規模數據集的快速擬合。'
+            ],
+            cons: [
+                '對異常值 (Outliers) 高度敏感。',
+                '假設特徵與目標呈線性關係，若非線性則擬合能力差。'
+            ],
+            use_cases: '房價預測、廣告開銷與銷售額預估、財務成長趨勢建模。',
+            quiz: {
+                question: '線性迴歸的最佳化目標通常是最小化以下哪一項？',
+                options: [
+                    '交叉熵損失 (Cross-Entropy Loss)',
+                    '殘差平方和 RSS (Residual Sum of Squares)',
+                    '吉尼不純度 (Gini Impurity)',
+                    '最大邊界間隔 (Maximum Margin)'
+                ],
+                correct: 1,
+                explanation: '線性迴歸的核心優化策略是尋找一條直線，使所有觀測點到直線的垂直距離平方和（即殘差平方和 RSS）達到最小。'
+            },
+            code: `import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# 模擬一維數據
+X = np.array([[1], [2], [3], [4], [5]])
+y = np.array([2.1, 3.8, 6.2, 8.1, 9.8])
+
+# 宣告與訓練模型
+model = LinearRegression()
+model.fit(X, y)
+
+# 預測
+predictions = model.predict(X)
+
+print("斜率 (Coefficient):", model.coef_[0])
+print("截距 (Intercept):", model.intercept_)
+print("MSE 分數:", mean_squared_error(y, predictions))
+print("R2 決定係數:", r2_score(y, predictions))`
+        },
+        logistic_regression: {
+            id: 'logistic_regression',
+            name: '邏輯迴歸 (Logistic Regression)',
+            category: 'classification',
+            module: 'Module 2: 預測與幾何分類',
+            formula: 'p = 1 / (1 + e^(-z))',
+            optimization: '最大化對數概似 / 最小化交叉熵損失',
+            concept: '邏輯迴歸用於二分類問題。它將線性方程式的連續輸出映射至 Sigmoid 函數，將其轉換為 (0, 1) 區間內的機率預測值。',
+            pros: [
+                '預測結果具有概率意義，可彈性設定門檻值。',
+                '計算開銷低，特徵係數易於轉換為 Odds Ratio 供業務分析。'
+            ],
+            cons: [
+                '本質是線性分類器，對高度非線性的邊界能力受限。',
+                '容易受多重共線性 (Multicollinearity) 影響。'
+            ],
+            use_cases: '信用風險評級（違約率）、點擊率 (CTR) 預測、疾病診斷預估。',
+            quiz: {
+                question: '邏輯迴歸如何將線性模型的實數輸出轉換為二分類的預測機率？',
+                options: [
+                    '利用 ReLU 激活函數將負數過濾掉',
+                    '使用 Softmax 多元映射',
+                    '使用 Sigmoid 函數將連續值映射至 (0, 1) 區間',
+                    '直接對大於 0.5 的輸出做階躍截斷'
+                ],
+                correct: 2,
+                explanation: '邏輯迴歸採用 Sigmoid 激活函數 σ(z) = 1 / (1 + e^-z)，把實數空間映射至 (0, 1) 代表事件發生的條件機率。'
+            },
+            code: `from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+# 建立樣本 (X1, X2) 與對應標籤 (0/1)
+X = np.array([[1, 2], [2, 1], [3, 4], [5, 5], [6, 4]])
+y = np.array([0, 0, 0, 1, 1])
+
+# 邏輯迴歸對特徵尺度敏感，常配合標準化
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+clf = LogisticRegression()
+clf.fit(X_scaled, y)
+
+# 取得預測類別及機率
+pred_class = clf.predict(X_scaled)
+pred_prob = clf.predict_proba(X_scaled)
+
+print("權重參數 (coef_):", clf.coef_)
+print("預測概率 (Class 1):", pred_prob[:, 1])`
+        },
+        knn: {
+            id: 'knn',
+            name: 'K-近鄰演算法 (KNN)',
+            category: 'classification',
+            module: 'Module 2: 預測與幾何分類',
+            formula: 'd(p, q) = √Σ(p_i - q_i)²',
+            optimization: 'Lazy Learning (無顯式優化目標)',
+            concept: 'KNN 屬於惰性學習（Lazy Learning），完全不需要進行模型參數訓練。它的預測基於「物以類聚」，即尋找鄰近空間中距離最近的 K 個觀測點進行多數決或均值計算。',
+            pros: [
+                '完全無先驗模型假設，適合各種幾何特徵的資料集。',
+                '原理直觀簡單，容易實現且對多分類支持度高。'
+            ],
+            cons: [
+                '計算開銷巨大（每次預測都要掃描所有點的距離）。',
+                '在高維空間中容易遭遇「維度災難」(Curse of Dimensionality) 導致失效。'
+            ],
+            use_cases: '初期推薦系統、鄰近商家定位標籤推薦、缺失值插補補值。',
+            quiz: {
+                question: '在 K-Nearest Neighbors 演算法中，當特徵維度 (Dimensions) 極高時，通常會產生什麼效應？',
+                options: [
+                    '模型擬合速度倍增',
+                    '「維度災難」導致距離指標逐漸失去區別性，使分類精度崩潰',
+                    '過擬合問題自動消失',
+                    'K-Means++ 算法會完全替代 KNN'
+                ],
+                correct: 1,
+                explanation: '隨著空間維度增加，高維空間的點與點之間的歐氏距離會趨向一致，使得「最近鄰」的選擇失效，這就是維度災難。'
+            },
+            code: `from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+
+# 標準化資料
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+
+# 初始化 KNN 預設選擇 K=5
+knn = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
+knn.fit(X_train_scaled, y_train)
+
+# 進行預測
+y_pred = knn.predict(X_test_scaled)
+print("KNN 測試集預測結果:", y_pred)`
+        },
+        svm: {
+            id: 'svm',
+            name: '支援向量機 (SVM)',
+            category: 'classification',
+            module: 'Module 2: 預測與幾何分類',
+            formula: 'max 2/||w|| s.t. y_i(wᵀx_i+b)≥1',
+            optimization: '極大化超平面幾何邊界 (Margin)',
+            concept: 'SVM 的基本目標是找到一個決策超平面，使得正負樣本到該平面的最近幾何間距 (Margin) 最大化。當樣本非線性可分時，利用「核函數 (Kernel Trick)」將資料映射到高維空間。',
+            pros: [
+                '在高維、特徵稀疏空間中仍具備極強的穩健度。',
+                '僅與支撐向量點相關，抗噪能力與泛化性能佳。'
+            ],
+            cons: [
+                '對極大規模資料集的訓練時間與記憶體開銷較高。',
+                '對核函數 parameter 與懲罰項 C 的調參相當敏感。'
+            ],
+            use_cases: '手寫辨識、文本分類、生物醫學的基因片段檢測。',
+            quiz: {
+                question: '當低維空間的數據呈現非線性分佈而無法被直線劃分時，SVM 如何處理？',
+                options: [
+                    '藉由 L1 常規項將次要特徵剔除',
+                    '使用「核函數 (Kernel Trick)」將數據非線性映射到高維空間進行線性分割',
+                    '將所有樣本隨機丟棄 50% 以求線性',
+                    '轉換為 PCA 先行把特徵減少'
+                ],
+                correct: 1,
+                explanation: 'SVM 主要使用核函數技術 (如高斯 RBF 核) 把原始低維特徵投射到高維特徵空間，在新的維度中數據便可實現線性分割。'
+            },
+            code: `from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 宣告支援向量分類器，採用常見的 RBF 核
+svm_clf = SVC(kernel='rbf', C=1.0, gamma='scale')
+svm_clf.fit(X_scaled, y)
+
+print("支持向量點數量:", len(svm_clf.support_vectors_))`
+        },
+        naive_bayes: {
+            id: 'naive_bayes',
+            name: '樸素貝氏 (Naive Bayes)',
+            category: 'classification',
+            module: 'Module 2: 預測與幾何分類',
+            formula: 'P(c|x) ∝ P(c) ∏ P(x_i|c)',
+            optimization: '最大後驗機率 (MAP)',
+            concept: '樸素貝氏是基於貝氏定理的概率分類器。之所以稱為「樸素 (Naive)」，是因為它做出了強烈假設：在已知目標類別下，各個特徵彼此獨立。這能顯著簡化條件概率的計算。',
+            pros: [
+                '計算極快，在文本分類大資料下表現出奇良好。',
+                '對缺失資料和特徵雜訊有很好的抗干擾能力。'
+            ],
+            cons: [
+                '若特徵之間有強關聯性（違背特徵獨立假設），則表現大打折扣。',
+                '容易受到零概率問題影響（通常需要加入拉普拉斯平滑）。'
+            ],
+            use_cases: '垃圾郵件過濾、即時情感極性檢測、新聞文件自動分類。',
+            quiz: {
+                question: '樸素貝氏演算法的「樸素 (Naive)」主要反映在什麼假設？',
+                options: [
+                    '假設所有特徵權重都是相同的',
+                    '假設所有數據的先驗概率 P(c) 皆為 0.5',
+                    '假設給定類別條件下，所有特徵變數之間是相互獨立的',
+                    '假設特徵分佈一定呈完美常態分佈'
+                ],
+                correct: 2,
+                explanation: '樸素貝氏的核心假設是「特徵條件獨立」，即每個特徵變數對分類結果的影響與其他特徵獨立無關，此簡化假設使得高維度下的聯合概率乘積化可行。'
+            },
+            code: `from sklearn.naive_bayes import GaussianNB
+import numpy as np
+
+# 高斯樸素貝氏，適合連續型數值特徵
+X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+y = np.array([1, 1, 1, 2, 2, 2])
+
+model = GaussianNB()
+model.fit(X, y)
+
+print("預測未知點 [-0.8, -1] 類別:", model.predict([[-0.8, -1]]))`
+        },
+        decision_tree: {
+            id: 'decision_tree',
+            name: '決策樹 (Decision Tree)',
+            category: 'classification',
+            module: 'Module 3: 樹狀與集成架構',
+            formula: 'Gini = 1 - Σ p_i²',
+            optimization: '極大化分割前後的資訊增益 / 吉尼不純度減少',
+            concept: '決策樹藉由遞迴方式分割特徵空間。在每個分支節點選擇能最大程度降低目標變數不純度（如 Gini 不純度或 Entropy）的特徵及其閾值，形成樹狀的決策規則。',
+            pros: [
+                '「白盒模型」，預測邏輯十分直觀且具備完美的規則解釋性。',
+                '不需要對資料進行標準化、歸一化，並天然支持分類與連續變數。'
+            ],
+            cons: [
+                '極度容易過擬合 (Overfitting)，需要剪枝或限制深度。',
+                '高方差 (High Variance)；稍微改動訓練資料可能造成樹結構的劇烈變化。'
+            ],
+            use_cases: '銀行放款審查標準設定、產品缺陷故障根因分析、電商行銷規則引擎。',
+            quiz: {
+                question: '為避免決策樹無限生長，造成嚴重的「過擬合」(Overfitting)，通常會使用何種限制參數？',
+                options: [
+                    '拉普拉斯平滑係數',
+                    '限制樹的最大深度 (max_depth)',
+                    '使用核函數 (RBF Kernel)',
+                    '加入 L1 正規化懲罰項'
+                ],
+                correct: 1,
+                explanation: '決策樹預設會生長到所有葉子節點都是純淨的，這會導致模型死記硬背訓練集。最直接的控制手段就是限縮「最大深度 (max_depth)」或設定葉子節點最小樣本數。'
+            },
+            code: `from sklearn.tree import DecisionTreeClassifier, export_text
+
+# 限制 max_depth=3 以防過擬合
+dt = DecisionTreeClassifier(max_depth=3, random_state=42)
+dt.fit(X_train, y_train)
+
+# 打印出文字版規則
+tree_rules = export_text(dt, feature_names=['Feature1', 'Feature2'])
+print("樹決策規則如下:\\n", tree_rules)`
+        },
+        random_forest: {
+            id: 'random_forest',
+            name: '隨機森林 (Random Forest)',
+            category: 'classification',
+            module: 'Module 3: 樹狀與集成架構',
+            formula: 'Ensemble Voting',
+            optimization: '自助抽樣集成 (Bagging) + 特徵隨機選擇',
+            concept: '隨機森林是基於 Bagging 技術的集成學習算法。它建立多個獨立的基分類器（決策樹），在構建每棵樹時，隨機選取樣本與特徵。最終預測為所有樹投票或均值。',
+            pros: [
+                '極佳的泛化效能，能在大資料集上表現出色的準確度。',
+                '能評估特徵重要性 (Feature Importances)，對異常值極具韌性。'
+            ],
+            cons: [
+                '由於包含了成百上千棵樹，失去了單一決策樹的可解釋性。',
+                '預測速度與儲存開銷隨樹的規模增大而變慢、變多。'
+            ],
+            use_cases: '客戶流失預測、基因體關聯分析、推薦系統特徵評分。',
+            quiz: {
+                question: '隨機森林主要是利用以下哪一種組合來大幅降低單一決策樹的高方差 (Variance) 缺點？',
+                options: [
+                    '序列殘差擬合 (Boosting) 與學習率限制',
+                    '樣本的自助抽樣 (Bootstrap Bagging) 以及特徵的隨機採樣',
+                    '核函數與支持向量間隔優化',
+                    '多重特徵PCA降維'
+                ],
+                correct: 1,
+                explanation: '隨機森林透過雙重隨機性：1. 自助抽樣生成不同訓練子集；2. 在分裂節點時隨機挑選特徵子集。此手段促使各決策樹具備差異化，取其平均後能極大地降低變異數。'
+            },
+            code: `from sklearn.ensemble import RandomForestClassifier
+
+# 建立 100 棵決策樹的森林
+rf = RandomForestClassifier(n_estimators=100, max_features='sqrt', random_state=42)
+rf.fit(X_train, y_train)
+
+# 評估特徵重要性
+for name, val in zip(['Feature1', 'Feature2'], rf.feature_importances_):
+    print(f"{name} 重要性分數: {val:.4f}")`
+        },
+        xgboost: {
+            id: 'xgboost',
+            name: 'XGBoost',
+            category: 'classification',
+            module: 'Module 3: 樹狀與集成架構',
+            formula: 'Obj = Σ l(y_i, ŷ_i) + Σ Ω(f_t)',
+            optimization: '二階泰勒展開序列殘差擬合 + 複雜度正則懲罰',
+            concept: 'XGBoost 是 GBDT 梯度提升算法的高效工程實現。它採用序列化訓練方式，每一棵新樹都在擬合前面樹的預測殘差。公式中加入了二階泰勒展開以優化損失，並使用結構正則項控制複雜度。',
+            pros: [
+                '表格資料 (Tabular Data) 的準確度「王者」，Kaggle 比賽利器。',
+                '內置缺失值填補、正則化防過擬合，且計算高度優化並行化。'
+            ],
+            cons: [
+                '超參數繁多，調參過程相當繁複且需要較長經驗。',
+                '對噪聲點敏感，若數據高度雜亂較容易陷入過擬合。'
+            ],
+            use_cases: '金融防欺詐交易檢測、保險公司風險評估、點擊率精準預估。',
+            quiz: {
+                question: '關於 XGBoost 與隨機森林 (Random Forest) 的根本差異，以下何者敘述正確？',
+                options: [
+                    'XGBoost 的每棵樹都是獨立並行訓練的，隨機森林是順序訓練的',
+                    'XGBoost 屬於 Boosting 家族，每棵樹在擬合前一階段的殘差，而隨機森林是並行樹的 Bagging 投票',
+                    'XGBoost 只能做分類，隨機森林只能做迴歸',
+                    'XGBoost 運算速度在所有環境下都一定比隨機森林慢'
+                ],
+                correct: 1,
+                explanation: 'XGBoost 屬於提升法 (Boosting)，其基分類器是有先後順序的，旨在優化前幾棵樹預測不夠準的地方；而隨機森林則是將獨立建構的多棵樹取平均(Bagging)。'
+            },
+            code: `# 注意: 需要安裝 xgboost 庫 (pip install xgboost)
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+
+# 將數據轉換為 XGB 專用矩陣格式 DMatrix
+dtrain = xgb.DMatrix(X_train, label=y_train)
+dtest = xgb.DMatrix(X_test, label=y_test)
+
+params = {
+    'max_depth': 4,
+    'eta': 0.1,
+    'objective': 'binary:logistic',
+    'eval_metric': 'logloss'
+}
+
+# 序列訓練 50 輪 (迭代 50 次)
+bst = xgb.train(params, dtrain, num_boost_round=50)
+y_preds = bst.predict(dtest)
+print("前五筆樣本的預測概率:", y_preds[:5])`
+        },
+        kmeans: {
+            id: 'kmeans',
+            name: 'K-Means 分群',
+            category: 'clustering',
+            module: 'Module 4: 非監督式探索',
+            formula: 'arg min Σ Σ ||x - μ_k||²',
+            optimization: '交替迭代優化群內平方和 (WCSS)',
+            concept: 'K-Means 是一種非監督式的分割分群演算法。目標是將樣本分為 K 個不相交的群 (Clusters)，使得群內樣本點到對應質心的距離平方和達到最小。',
+            pros: [
+                '算法收斂速度極快，邏輯直觀非常容易推展與實現。',
+                '在大數據下具備非常好的線性時間複雜度。'
+            ],
+            cons: [
+                '需要手動預先指定分群數 K 值的設定。',
+                '對異常值與初始質心位置敏感，且只能識別出凸形（球形）的簇。'
+            ],
+            use_cases: '客戶分群行銷、圖像顏色量化壓縮、異常賬戶檢測。',
+            quiz: {
+                question: 'K-Means 算法在選擇初始質心 (Centroids) 時，為防範落入較差的局部最優解，通常推薦採用何種優化初始化方式？',
+                options: [
+                    '隨機挑選坐標軸邊緣點',
+                    '使用「k-means++」初始化演算法，讓初始質心之間儘可能遠離',
+                    '全部初始化在原點 (0, 0)',
+                    '先用隨機森林分類出質心'
+                ],
+                correct: 1,
+                explanation: '傳統隨機選擇質心易導致演算法陷入局部最優。「k-means++」在選擇下一個初始質心時，會傾向於選擇與現有質心距離較遠的點，大幅提升了分群品質與收斂速度。'
+            },
+            code: `from sklearn.cluster import KMeans
+import numpy as np
+
+# 建立模擬二維數據點
+X = np.random.rand(100, 2)
+
+# 使用 k-means++ 初始化並指定劃分成 3 群
+kmeans = KMeans(n_clusters=3, init='k-means++', n_init=10, random_state=42)
+kmeans.fit(X)
+
+print("分群質心位置:\\n", kmeans.cluster_centers_)
+print("前 10 筆數據的分群標籤:", kmeans.labels_[:10])`
+        },
+        pca: {
+            id: 'pca',
+            name: '主成分分析 (PCA)',
+            category: 'pca',
+            module: 'Module 4: 非監督式探索',
+            formula: 'Σ v = λ v',
+            optimization: '極大化低維正交投影方向的方差 (Variance)',
+            concept: 'PCA 是一種線性降維方法。它通過正交變換將相互關聯的特徵投影至一組彼此正交的方向（主成分 PC），優化目標是使第一主成分解釋最大的變異量，以此達到保留最核心資訊的目的。',
+            pros: [
+                '能有效消除特徵間的共線性，降低機器學習計算維度開銷。',
+                '能將超高維數據降至 2D/3D 以實現可視化觀察。'
+            ],
+            cons: [
+                '變換後的主成分失去原始特徵的業務解釋含意。',
+                '本質是線性轉換，對於高度非線性的曲面流形降維效果有限。'
+            ],
+            use_cases: '高維圖像特徵壓縮、語音特徵提取、機器學習前置降噪處理。',
+            quiz: {
+                question: 'PCA 主成分分析的數學核心原理是以下哪一項？',
+                options: [
+                    '最大化特徵變量之間的正相關係數',
+                    '通過特徵值分解或奇異值分解 (SVD)，尋找變異數 (Variance) 最大化的正交投影方向',
+                    '最小化交叉熵損失函數',
+                    '建立非線性決策超平面'
+                ],
+                correct: 1,
+                explanation: 'PCA 的目標是降維的同時保留最多信息。它的作法是計算數據協方差矩陣，並對其進行特徵值分解（或 SVD），尋找能最大程度保留數據變異方向的正交基底。'
+            },
+            code: `from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+# 建立 3 維特徵數據
+X = np.random.rand(50, 3)
+
+# PCA 對尺度極度敏感，降維前必須做標準化
+X_scaled = StandardScaler().fit_transform(X)
+
+# 降到 2 維
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+print("解釋變異量百分比 (Variance Ratio):", pca.explained_variance_ratio_)
+print("投影後的 2D 坐標形式:\\n", X_pca[:5])`
+        }
+    };
+
+    // ----------------------------------------------------
+    // STATE VARIABLES
+    // ----------------------------------------------------
+    let currentAlgoId = 'linear_regression';
+    let currentPoints = []; // List of {x: 0~1, y: 0~1, label: 0/1}
+    let selectedClass = 0; // 0: Purple, 1: Cyan
+    let activeTab = 'concept';
+    let customModelParams = {}; // stores parameters for the current algorithm simulation
+
+    // Canvas configuration
+    const canvas = document.getElementById('visualizerCanvas');
+    const ctx = canvas.getContext('2d');
+    const coordsOverlay = document.getElementById('coordsOverlay');
+
+    // ----------------------------------------------------
+    // INITIALIZATION & TAB SWITCHING
+    // ----------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        setupSidebar();
+        setupTabs();
+        setupEventListeners();
+        loadAlgorithm(currentAlgoId);
+        
+        // Resize canvas correctly on start
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+    });
+
+    function setupSidebar() {
+        const listContainer = document.getElementById('algoList');
+        listContainer.innerHTML = '';
+        
+        Object.values(ALGO_DATA).forEach(algo => {
+            const item = document.createElement('div');
+            item.className = `algo-item ${algo.category}`;
+            item.dataset.id = algo.id;
+            
+            let badgeText = '預測';
+            if(algo.category === 'classification') badgeText = '分類';
+            else if(algo.category === 'clustering') badgeText = '分群';
+            else if(algo.category === 'pca') badgeText = '降維';
+
+            item.innerHTML = `
+                <div class="algo-name">${algo.name}</div>
+                <div class="algo-badge">${badgeText}</div>
+            `;
+            
+            item.addEventListener('click', () => {
+                // Remove active class from all
+                document.querySelectorAll('.algo-item').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+                loadAlgorithm(algo.id);
+            });
+            
+            listContainer.appendChild(item);
+        });
+
+        // Set initial active item
+        const firstItem = listContainer.querySelector(`[data-id="${currentAlgoId}"]`);
+        if (firstItem) firstItem.classList.add('active');
+    }
+
+    function setupTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const targetTab = btn.dataset.tab;
+                activeTab = targetTab;
+                document.getElementById(`tab-${targetTab}`).classList.add('active');
+            });
+        });
+    }
+
+    function setupEventListeners() {
+        // Point addition click
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            // Map mouse click to [0, 1] values
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = 1.0 - (e.clientY - rect.top) / rect.height; // Invert Y so 0 is bottom
+            
+            addPoint(x, y, selectedClass);
+        });
+
+        // Coordinates display on hover
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = 1.0 - (e.clientY - rect.top) / rect.height;
+            coordsOverlay.textContent = `X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`;
+            
+            // For KNN interactive hover prediction boundary visualization
+            if (currentAlgoId === 'knn' && currentPoints.length > 0) {
+                runSimulationAndDraw();
+                // Draw dynamic hover pointer prediction
+                drawKNNHoverScope(e.clientX - rect.left, e.clientY - rect.top, x, y);
+            }
+        });
+
+        // Class selection toggles
+        document.querySelectorAll('.btn-class').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn-class').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+                selectedClass = parseInt(btn.dataset.class);
+            });
+        });
+
+        // Clear buttons
+        document.getElementById('btnClear').addEventListener('click', () => {
+            currentPoints = [];
+            runSimulationAndDraw();
+        });
+
+        // Copy Code Snippet
+        document.getElementById('btnCopyCode').addEventListener('click', () => {
+            const code = document.getElementById('codeSnippet').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('btnCopyCode');
+                btn.innerText = '已複製!';
+                setTimeout(() => btn.innerText = '複製代碼', 1500);
+            });
+        });
+    }
+
+    function resizeCanvas() {
+        // Keeps the rendering buffer matches client display
+        const rect = canvas.parentNode.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.width; // keep square aspect-ratio
+        runSimulationAndDraw();
+    }
+
+    // ----------------------------------------------------
+    // LOAD SPECIFIC ALGORITHM DATA
+    // ----------------------------------------------------
+    function loadAlgorithm(id) {
+        currentAlgoId = id;
+        const algo = ALGO_DATA[id];
+        
+        // Update header classes and UI text elements
+        const headerCard = document.getElementById('headerCard');
+        headerCard.className = `header-card ${algo.category}`;
+        
+        document.getElementById('algoTitle').innerText = algo.name;
+        document.getElementById('algoModule').innerHTML = `<span></span> ${algo.module}`;
+        document.getElementById('algoFormula').innerText = algo.formula;
+
+        // Render theme classes to specific visual tags
+        const sandboxCard = document.getElementById('sandboxCard');
+        sandboxCard.className = `sandbox-card ${algo.category}`;
+
+        // Load Concept text
+        document.getElementById('conceptText').innerText = algo.concept;
+        document.getElementById('conceptPros').innerHTML = algo.pros.map(p => `<li>${p}</li>`).join('');
+        document.getElementById('conceptCons').innerHTML = algo.cons.map(c => `<li>${c}</li>`).join('');
+        document.getElementById('conceptUseCases').innerText = algo.use_cases;
+
+        // Load Quiz
+        loadQuiz(algo.quiz);
+
+        // Load Code snippet
+        document.getElementById('codeSnippet').innerText = algo.code;
+
+        // Configure class toggling UI visibility
+        const classSelector = document.getElementById('classSelector');
+        if (algo.category === 'classification') {
+            classSelector.style.display = 'flex';
+        } else {
+            classSelector.style.display = 'none';
+        }
+
+        // Setup parameters options panel
+        setupParamPanel(id);
+
+        // Load standard demo dataset points for better usability
+        loadDemoDataset(id);
+        
+        // Run ML simulation & Canvas drawing
+        runSimulationAndDraw();
+    }
+
+    // ----------------------------------------------------
+    // QUIZ COMPONENT
+    // ----------------------------------------------------
+    function loadQuiz(quiz) {
+        document.getElementById('quizQuestion').innerText = quiz.question;
+        const optionsContainer = document.getElementById('quizOptions');
+        optionsContainer.innerHTML = '';
+        
+        const feedback = document.getElementById('quizFeedback');
+        feedback.className = 'quiz-feedback'; // Hide
+        
+        quiz.options.forEach((opt, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'quiz-option';
+            btn.innerHTML = `
+                <div class="quiz-option-marker">${String.fromCharCode(65 + idx)}</div>
+                <span>${opt}</span>
+            `;
+            
+            btn.addEventListener('click', () => {
+                // Avoid double submission
+                if (feedback.classList.contains('show')) return;
+                
+                // Highlight options based on accuracy
+                const allOpts = optionsContainer.querySelectorAll('.quiz-option');
+                if (idx === quiz.correct) {
+                    btn.classList.add('correct');
+                    showQuizFeedback(true, quiz.explanation);
+                } else {
+                    btn.classList.add('incorrect');
+                    allOpts[quiz.correct].classList.add('correct');
+                    showQuizFeedback(false, quiz.explanation);
+                }
+            });
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function showQuizFeedback(isCorrect, explanationText) {
+        const feedback = document.getElementById('quizFeedback');
+        const title = document.getElementById('feedbackTitle');
+        const text = document.getElementById('feedbackText');
+        
+        if (isCorrect) {
+            feedback.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            title.innerHTML = '🎉 回答正確！';
+            title.style.color = '#34d399';
+        } else {
+            feedback.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            title.innerHTML = '❌ 回答錯誤';
+            title.style.color = '#f87171';
+        }
+        
+        text.innerText = explanationText;
+        feedback.classList.add('show');
+    }
+
+    // ----------------------------------------------------
+    // LOAD DEMO DATASET
+    // ----------------------------------------------------
+    function loadDemoDataset(algoId) {
+        currentPoints = [];
+        
+        if (algoId === 'linear_regression') {
+            // Regression line trend points
+            for(let i = 0; i < 15; i++) {
+                let x = 0.1 + i * 0.05 + (Math.random() - 0.5) * 0.04;
+                let y = 0.2 + x * 0.6 + (Math.random() - 0.5) * 0.08;
+                currentPoints.push({x: clamp(x, 0, 1), y: clamp(y, 0, 1), label: 0});
+            }
+        } 
+        else if (algoId === 'kmeans') {
+            // Three distinctive blobs
+            const blobs = [
+                {cx: 0.3, cy: 0.7, std: 0.08},
+                {cx: 0.7, cy: 0.6, std: 0.08},
+                {cx: 0.4, cy: 0.3, std: 0.08}
+            ];
+            blobs.forEach(b => {
+                for(let i = 0; i < 8; i++) {
+                    currentPoints.push({
+                        x: clamp(b.cx + (Math.random() - 0.5) * b.std * 2, 0, 1),
+                        y: clamp(b.cy + (Math.random() - 0.5) * b.std * 2, 0, 1),
+                        label: 0
+                    });
+                }
+            });
+        } 
+        else if (algoId === 'pca') {
+            // Highly correlated cigar-shaped cluster
+            const cx = 0.5, cy = 0.5;
+            for(let i = 0; i < 20; i++) {
+                let u = (Math.random() - 0.5) * 0.6; // along primary direction
+                let v = (Math.random() - 0.5) * 0.15; // along secondary direction
+                // rotate by 30 degrees
+                let theta = 30 * Math.PI / 180;
+                let x = cx + u * Math.cos(theta) - v * Math.sin(theta);
+                let y = cy + u * Math.sin(theta) + v * Math.cos(theta);
+                currentPoints.push({x: clamp(x, 0, 1), y: clamp(y, 0, 1), label: 0});
+            }
+        } 
+        else {
+            // Classification problem: non-linear separation (Moons-like dataset)
+            // Class 0 (Purple)
+            for(let i = 0; i < 12; i++) {
+                let theta = (i / 11) * Math.PI;
+                let x = 0.5 + 0.25 * Math.cos(theta) + (Math.random() - 0.5) * 0.05;
+                let y = 0.5 + 0.25 * Math.sin(theta) + (Math.random() - 0.5) * 0.05;
+                currentPoints.push({x: clamp(x, 0, 1), y: clamp(y, 0, 1), label: 0});
+            }
+            // Class 1 (Cyan)
+            for(let i = 0; i < 12; i++) {
+                let theta = (i / 11) * Math.PI;
+                let x = 0.5 - 0.25 * Math.cos(theta) + (Math.random() - 0.5) * 0.05;
+                let y = 0.35 - 0.25 * Math.sin(theta) + (Math.random() - 0.5) * 0.05;
+                currentPoints.push({x: clamp(x, 0, 1), y: clamp(y, 0, 1), label: 1});
+            }
+        }
+    }
+
+    function addPoint(x, y, label) {
+        currentPoints.push({ x, y, label });
+        runSimulationAndDraw();
+    }
+
+    function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
+    // ----------------------------------------------------
+    // DYNAMIC PARAMETER PANEL
+    // ----------------------------------------------------
+    function setupParamPanel(algoId) {
+        const panel = document.getElementById('paramPanel');
+        panel.innerHTML = '';
+        customModelParams = {};
+
+        if (algoId === 'knn') {
+            customModelParams.k = 5;
+            createSliderParam('鄰居個數 (Neighbors K)', 1, 15, 5, 1, (val) => {
+                customModelParams.k = parseInt(val);
+                runSimulationAndDraw();
+            });
+        } 
+        else if (algoId === 'logistic_regression' || algoId === 'svm') {
+            customModelParams.c = 1.0;
+            createSliderParam('正規化懲罰 C (Regularization)', 0.1, 10, 1.0, 0.1, (val) => {
+                customModelParams.c = parseFloat(val);
+                runSimulationAndDraw();
+            });
+        } 
+        else if (algoId === 'decision_tree' || algoId === 'random_forest' || algoId === 'xgboost') {
+            customModelParams.maxDepth = 3;
+            createSliderParam('最大決策樹深度 (Max Depth)', 1, 6, 3, 1, (val) => {
+                customModelParams.maxDepth = parseInt(val);
+                runSimulationAndDraw();
+            });
+            
+            if (algoId === 'random_forest') {
+                customModelParams.numTrees = 5;
+                createSliderParam('森林樹木棵數 (Estimators)', 2, 10, 5, 1, (val) => {
+                    customModelParams.numTrees = parseInt(val);
+                    runSimulationAndDraw();
+                });
+            } 
+            else if (algoId === 'xgboost') {
+                customModelParams.numTrees = 4;
+                customModelParams.lr = 0.3;
+                createSliderParam('Boosting 輪數 (Iter)', 2, 8, 4, 1, (val) => {
+                    customModelParams.numTrees = parseInt(val);
+                    runSimulationAndDraw();
+                });
+                createSliderParam('學習率 (Learning Rate η)', 0.1, 0.9, 0.3, 0.1, (val) => {
+                    customModelParams.lr = parseFloat(val);
+                    runSimulationAndDraw();
+                });
+            }
+        } 
+        else if (algoId === 'kmeans') {
+            customModelParams.kClusters = 3;
+            createSliderParam('聚類分群數 (Clusters K)', 2, 6, 3, 1, (val) => {
+                customModelParams.kClusters = parseInt(val);
+                runSimulationAndDraw();
+            });
+        }
+        else {
+            // For standard regression or PCA which don't require parameters
+            panel.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">此演算法沙盒暫無外部參數需調整</div>';
+        }
+    }
+
+    function createSliderParam(label, min, max, value, step, onChange) {
+        const panel = document.getElementById('paramPanel');
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '0.35rem';
+        
+        const sliderId = 'slider-' + Math.random().toString(36).substring(7);
+
+        container.innerHTML = `
+            <div class="param-row">
+                <span class="param-label">${label}</span>
+                <span class="param-value" id="${sliderId}-val">${value}</span>
+            </div>
+            <input type="range" class="slider" id="${sliderId}" min="${min}" max="${max}" value="${value}" step="${step}">
+        `;
+        
+        panel.appendChild(container);
+
+        const rangeInput = container.querySelector('input');
+        rangeInput.addEventListener('input', (e) => {
+            document.getElementById(`${sliderId}-val`).innerText = e.target.value;
+            onChange(e.target.value);
+        });
+    }
+
+    // ----------------------------------------------------
+    // CORE MACHINE LEARNING MODELS IN JAVASCRIPT
+    // ----------------------------------------------------
+
+    // 1. Linear Regression
+    function solveLinearRegression(points) {
+        if (points.length < 2) return null;
+        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        let n = points.length;
+        for (let p of points) {
+            sumX += p.x;
+            sumY += p.y;
+            sumXY += p.x * p.y;
+            sumXX += p.x * p.x;
+        }
+        let num = (n * sumXY) - (sumX * sumY);
+        let den = (n * sumXX) - (sumX * sumX);
+        if (Math.abs(den) < 1e-6) return null;
+        let m = num / den;
+        let c = (sumY - m * sumX) / n;
+        
+        // Calculate MSE and R2
+        let mse = 0, totalVar = 0;
+        let meanY = sumY / n;
+        for (let p of points) {
+            let pred = m * p.x + c;
+            mse += (p.y - pred) ** 2;
+            totalVar += (p.y - meanY) ** 2;
+        }
+        mse /= n;
+        let r2 = totalVar > 1e-6 ? 1.0 - (mse * n / totalVar) : 1.0;
+        
+        return { m, c, mse, r2 };
+    }
+
+    // 2. Logistic Regression with basic SGD
+    function solveLogisticRegression(points, penaltyC) {
+        let w = [0.0, 0.0];
+        let b = 0.0;
+        let n = points.length;
+        if (n === 0) return { w, b };
+        
+        let lr = 0.15;
+        let epochs = 250;
+        let lambda = 1.0 / (penaltyC + 1e-5); // map C value to lambda regularization
+        
+        for (let epoch = 0; epoch < epochs; epoch++) {
+            for (let p of points) {
+                let z = w[0] * p.x + w[1] * p.y + b;
+                let pred = 1 / (1 + Math.exp(-z));
+                let error = p.label - pred;
+                
+                // updates weight with L2 regularization
+                w[0] += lr * (error * p.x - (lambda / n) * w[0]);
+                w[1] += lr * (error * p.y - (lambda / n) * w[1]);
+                b += lr * error;
+            }
+        }
+        return { w, b };
+    }
+    
+    function predictLogistic(model, x, y) {
+        let z = model.w[0] * x + model.w[1] * y + model.b;
+        return 1.0 / (1.0 + Math.exp(-z));
+    }
+
+    // 3. KNN prediction
+    function queryKNN(points, x, y, k) {
+        if (points.length === 0) return 0.5;
+        let dists = points.map(p => {
+            let d = (p.x - x) ** 2 + (p.y - y) ** 2;
+            return { dist: d, label: p.label, p };
+        });
+        dists.sort((a, b) => a.dist - b.dist);
+        let activeK = Math.min(k, dists.length);
+        let votesClass1 = 0;
+        for (let i = 0; i < activeK; i++) {
+            if (dists[i].label === 1) votesClass1++;
+        }
+        return votesClass1 / activeK;
+    }
+
+    // 4. SVM with dual RBF kernel representation
+    function solveSVM(points, C) {
+        let n = points.length;
+        let alphas = new Array(n).fill(0.0);
+        let b = 0.0;
+        if (n === 0) return { alphas, b };
+        
+        let y = points.map(p => p.label === 1 ? 1 : -1);
+        let gamma = 8.0; // standard RBF spread
+        let lr = 0.05;
+        
+        // gradient ascent / descent optimizer for dual SVM representation
+        for (let epoch = 0; epoch < 200; epoch++) {
+            for (let j = 0; j < n; j++) {
+                let val = 0;
+                for (let i = 0; i < n; i++) {
+                    let dist2 = (points[i].x - points[j].x)**2 + (points[i].y - points[j].y)**2;
+                    let kernel = Math.exp(-gamma * dist2);
+                    val += alphas[i] * y[i] * kernel;
+                }
+                val += b;
+                
+                let err = y[j] - val;
+                
+                // Dual update bounded by C
+                alphas[j] = clamp(alphas[j] + lr * err, 0, C);
+                b += lr * err;
+            }
+        }
+        return { alphas, b, gamma, y };
+    }
+
+    function predictSVM(model, points, x, y) {
+        let n = points.length;
+        if (n === 0) return 0.5;
+        let val = 0;
+        for (let i = 0; i < n; i++) {
+            let dist2 = (points[i].x - x)**2 + (points[i].y - y)**2;
+            let kernel = Math.exp(-model.gamma * dist2);
+            val += model.alphas[i] * model.y[i] * kernel;
+        }
+        val += model.b;
+        return 1.0 / (1.0 + Math.exp(-2.0 * val)); // scaled Sigmoid
+    }
+
+    // 5. Naive Bayes 2D Gaussian density function
+    function fitNaiveBayes(points) {
+        let stats = {
+            0: { count: 0, meanX: 0, meanY: 0, varX: 0, varY: 0, prior: 0 },
+            1: { count: 0, meanX: 0, meanY: 0, varX: 0, varY: 0, prior: 0 }
+        };
+        
+        for (let p of points) {
+            stats[p.label].count++;
+            stats[p.label].meanX += p.x;
+            stats[p.label].meanY += p.y;
+        }
+        
+        let total = points.length;
+        if (total === 0) return stats;
+        
+        for (let c of [0, 1]) {
+            stats[c].prior = stats[c].count / total;
+            if (stats[c].count > 0) {
+                stats[c].meanX /= stats[c].count;
+                stats[c].meanY /= stats[c].count;
+            }
+        }
+        
+        for (let p of points) {
+            stats[p.label].varX += (p.x - stats[p.label].meanX) ** 2;
+            stats[p.label].varY += (p.y - stats[p.label].meanY) ** 2;
+        }
+        
+        for (let c of [0, 1]) {
+            if (stats[c].count > 1) {
+                stats[c].varX /= (stats[c].count - 1);
+                stats[c].varY /= (stats[c].count - 1);
+            } else {
+                stats[c].varX = 0.02;
+                stats[c].varY = 0.02;
+            }
+            if (stats[c].varX < 1e-3) stats[c].varX = 1e-3;
+            if (stats[c].varY < 1e-3) stats[c].varY = 1e-3;
+        }
+        return stats;
+    }
+
+    function predictNaiveBayes(stats, x, y) {
+        if (stats[0].count === 0 && stats[1].count === 0) return 0.5;
+        if (stats[0].count === 0) return 1.0;
+        if (stats[1].count === 0) return 0.0;
+        
+        function normPDF(val, mean, variance) {
+            let num = Math.exp(-((val - mean) ** 2) / (2 * variance));
+            let den = Math.sqrt(2 * Math.PI * variance);
+            return num / den;
+        }
+        
+        let prob0 = stats[0].prior * normPDF(x, stats[0].meanX, stats[0].varX) * normPDF(y, stats[0].meanY, stats[0].varY);
+        let prob1 = stats[1].prior * normPDF(x, stats[1].meanX, stats[1].varX) * normPDF(y, stats[1].meanY, stats[1].varY);
+        
+        let sum = prob0 + prob1;
+        if (sum === 0) return 0.5;
+        return prob1 / sum;
+    }
+
+    // 6. Decision Tree split building
+    function fitDecisionTree(points, maxDepth) {
+        function build(subset, depth) {
+            if (subset.length === 0) return { isLeaf: true, prediction: 0.5 };
+            
+            let c0 = subset.filter(p => p.label === 0).length;
+            let c1 = subset.length - c0;
+            
+            if (c0 === 0) return { isLeaf: true, prediction: 1.0 };
+            if (c1 === 0) return { isLeaf: true, prediction: 0.0 };
+            if (depth >= maxDepth) return { isLeaf: true, prediction: c1 / subset.length };
+            
+            let bestGini = 1.0;
+            let bestFeature = null;
+            let bestThreshold = null;
+            let bestLeft = null;
+            let bestRight = null;
+            
+            function computeGini(n0, n1) {
+                let sum = n0 + n1;
+                if (sum === 0) return 0;
+                let p0 = n0 / sum;
+                let p1 = n1 / sum;
+                return 1.0 - (p0*p0 + p1*p1);
+            }
+            
+            for (let f of ['x', 'y']) {
+                let sorted = [...subset].sort((a,b) => a[f] - b[f]);
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    let threshold = (sorted[i][f] + sorted[i+1][f]) / 2;
+                    let left = sorted.filter(p => p[f] <= threshold);
+                    let right = sorted.filter(p => p[f] > threshold);
+                    
+                    let l0 = left.filter(p => p.label === 0).length;
+                    let l1 = left.length - l0;
+                    let r0 = right.filter(p => p.label === 0).length;
+                    let r1 = right.length - r0;
+                    
+                    let wGini = (left.length / subset.length) * computeGini(l0, l1) + 
+                                 (right.length / subset.length) * computeGini(r0, r1);
+                    
+                    if (wGini < bestGini) {
+                        bestGini = wGini;
+                        bestFeature = f;
+                        bestThreshold = threshold;
+                        bestLeft = left;
+                        bestRight = right;
+                    }
+                }
+            }
+            
+            if (bestFeature === null) {
+                return { isLeaf: true, prediction: c1 / subset.length };
+            }
+            
+            return {
+                isLeaf: false,
+                feature: bestFeature,
+                threshold: bestThreshold,
+                left: build(bestLeft, depth + 1),
+                right: build(bestRight, depth + 1)
+            };
+        }
+        
+        return build(points, 0);
+    }
+
+    function predictTree(node, x, y) {
+        if (node.isLeaf) return node.prediction;
+        let val = node.feature === 'x' ? x : y;
+        if (val <= node.threshold) {
+            return predictTree(node.left, x, y);
+        } else {
+            return predictTree(node.right, x, y);
+        }
+    }
+
+    // 7. Random Forest (Multiple Bootstrapped Trees)
+    function fitRandomForest(points, numTrees, maxDepth) {
+        let trees = [];
+        let n = points.length;
+        if (n === 0) return trees;
+        
+        for (let t = 0; t < numTrees; t++) {
+            let sample = [];
+            for (let i = 0; i < n; i++) {
+                sample.push(points[Math.floor(Math.random() * n)]);
+            }
+            trees.push(fitDecisionTree(sample, maxDepth));
+        }
+        return trees;
+    }
+
+    function predictRandomForest(trees, x, y) {
+        if (trees.length === 0) return 0.5;
+        let sum = 0;
+        for (let tree of trees) {
+            sum += predictTree(tree, x, y);
+        }
+        return sum / trees.length;
+    }
+
+    // 8. XGBoost (Boosting regression trees fitting log-odds residual)
+    function fitXGBoost(points, numTrees, maxDepth, lr) {
+        let n = points.length;
+        let F = new Array(n).fill(0.0);
+        let trees = [];
+        if (n === 0) return { trees, lr };
+
+        function fitResidualTree(subset, depth) {
+            if (subset.length === 0) return { isLeaf: true, prediction: 0.0 };
+            let avgResidual = subset.reduce((sum, p) => sum + p.res, 0) / subset.length;
+            
+            if (depth >= maxDepth || subset.length < 3) {
+                return { isLeaf: true, prediction: avgResidual };
+            }
+            
+            let bestMSE = Infinity;
+            let bestFeature = null;
+            let bestThreshold = null;
+            let bestLeft = null;
+            let bestRight = null;
+            
+            for (let f of ['x', 'y']) {
+                let sorted = [...subset].sort((a, b) => a[f] - b[f]);
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    let threshold = (sorted[i][f] + sorted[i+1][f]) / 2;
+                    let left = sorted.filter(p => p[f] <= threshold);
+                    let right = sorted.filter(p => p[f] > threshold);
+                    
+                    if (left.length === 0 || right.length === 0) continue;
+                    
+                    let meanL = left.reduce((sum, p) => sum + p.res, 0) / left.length;
+                    let meanR = right.reduce((sum, p) => sum + p.res, 0) / right.length;
+                    
+                    let mse = left.reduce((sum, p) => sum + (p.res - meanL)**2, 0) + 
+                              right.reduce((sum, p) => sum + (p.res - meanR)**2, 0);
+                    
+                    if (mse < bestMSE) {
+                        bestMSE = mse;
+                        bestFeature = f;
+                        bestThreshold = threshold;
+                        bestLeft = left;
+                        bestRight = right;
+                    }
+                }
+            }
+            
+            if (bestFeature === null) {
+                return { isLeaf: true, prediction: avgResidual };
+            }
+            
+            return {
+                isLeaf: false,
+                feature: bestFeature,
+                threshold: bestThreshold,
+                left: fitResidualTree(bestLeft, depth + 1),
+                right: fitResidualTree(bestRight, depth + 1)
+            };
+        }
+
+        for (let t = 0; t < numTrees; t++) {
+            let subset = [];
+            for (let i = 0; i < n; i++) {
+                let p = 1.0 / (1.0 + Math.exp(-F[i]));
+                let res = points[i].label - p;
+                subset.push({ x: points[i].x, y: points[i].y, res: res });
+            }
+            
+            let tree = fitResidualTree(subset, 0);
+            trees.push(tree);
+            
+            for (let i = 0; i < n; i++) {
+                F[i] += lr * predictTree(tree, points[i].x, points[i].y);
+            }
+        }
+        return { trees, lr };
+    }
+
+    function predictXGBoost(model, x, y) {
+        if (!model.trees || model.trees.length === 0) return 0.5;
+        let F = 0.0;
+        for (let tree of model.trees) {
+            F += model.lr * predictTree(tree, x, y);
+        }
+        return 1.0 / (1.0 + Math.exp(-F));
+    }
+
+    // 9. KMeans Clustering
+    function solveKMeans(points, k) {
+        let n = points.length;
+        if (n === 0) return { centroids: [], assignments: [] };
+        
+        let centroids = [];
+        // K-Means++ style selection or distant random
+        for(let i = 0; i < k; i++) {
+            let pt = points[Math.floor(Math.random() * n)];
+            centroids.push({ x: pt.x, y: pt.y });
+        }
+        
+        let assignments = new Array(n).fill(0);
+        let maxIter = 100;
+        
+        for (let iter = 0; iter < maxIter; iter++) {
+            let changed = false;
+            for (let i = 0; i < n; i++) {
+                let minDist = Infinity;
+                let bestCentroid = 0;
+                for (let c = 0; c < k; c++) {
+                    let d = (points[i].x - centroids[c].x)**2 + (points[i].y - centroids[c].y)**2;
+                    if (d < minDist) {
+                        minDist = d;
+                        bestCentroid = c;
+                    }
+                }
+                if (assignments[i] !== bestCentroid) {
+                    assignments[i] = bestCentroid;
+                    changed = true;
+                }
+            }
+            
+            // Re-center centroids
+            let sumsX = new Array(k).fill(0);
+            let sumsY = new Array(k).fill(0);
+            let counts = new Array(k).fill(0);
+            for (let i = 0; i < n; i++) {
+                let c = assignments[i];
+                sumsX[c] += points[i].x;
+                sumsY[c] += points[i].y;
+                counts[c]++;
+            }
+            
+            for (let c = 0; c < k; c++) {
+                if (counts[c] > 0) {
+                    centroids[c].x = sumsX[c] / counts[c];
+                    centroids[c].y = sumsY[c] / counts[c];
+                }
+            }
+            if (!changed) break;
+        }
+        
+        // Calculate WCSS
+        let wcss = 0;
+        for (let i = 0; i < n; i++) {
+            let c = assignments[i];
+            wcss += (points[i].x - centroids[c].x)**2 + (points[i].y - centroids[c].y)**2;
+        }
+        
+        return { centroids, assignments, wcss };
+    }
+
+    // 10. PCA Dimension Reduction
+    function solvePCA(points) {
+        let n = points.length;
+        if (n < 2) return null;
+        
+        let meanX = 0, meanY = 0;
+        for (let p of points) {
+            meanX += p.x;
+            meanY += p.y;
+        }
+        meanX /= n;
+        meanY /= n;
+        
+        let cxx = 0, cyy = 0, cxy = 0;
+        for (let p of points) {
+            let dx = p.x - meanX;
+            let dy = p.y - meanY;
+            cxx += dx * dx;
+            cyy += dy * dy;
+            cxy += dx * dy;
+        }
+        cxx /= n;
+        cyy /= n;
+        cxy /= n;
+        
+        let tr = cxx + cyy;
+        let det = cxx * cyy - cxy * cxy;
+        let desc = Math.max(0, tr * tr - 4 * det);
+        let lambda1 = (tr + Math.sqrt(desc)) / 2;
+        let lambda2 = (tr - Math.sqrt(desc)) / 2;
+        
+        let v1x = 0, v1y = 0;
+        if (Math.abs(cxy) > 1e-9) {
+            v1x = cxy;
+            v1y = lambda1 - cxx;
+        } else {
+            if (cxx > cyy) { v1x = 1; v1y = 0; }
+            else { v1x = 0; v1y = 1; }
+        }
+        let norm = Math.sqrt(v1x*v1x + v1y*v1y);
+        if (norm > 0) { v1x /= norm; v1y /= norm; }
+        
+        let v2x = -v1y;
+        let v2y = v1x;
+        
+        let total = lambda1 + lambda2;
+        let varRatio1 = total > 1e-8 ? lambda1 / total : 1.0;
+        let varRatio2 = total > 1e-8 ? lambda2 / total : 0.0;
+        
+        return {
+            meanX, meanY,
+            pc1: { x: v1x, y: v1y, varRatio: varRatio1, eigenvalue: lambda1 },
+            pc2: { x: v2x, y: v2y, varRatio: varRatio2, eigenvalue: lambda2 }
+        };
+    }
+
+    // ----------------------------------------------------
+    // SIMULATION ENGINE & CANVAS DRAWING
+    // ----------------------------------------------------
+    function runSimulationAndDraw() {
+        // Clear screen
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Fetch display sizing
+        const w = canvas.width;
+        const h = canvas.height;
+        const algo = ALGO_DATA[currentAlgoId];
+
+        // 1. DRAW DECISION BOUNDARY MESH IF APPLICABLE
+        if (algo.category === 'classification' && currentPoints.length > 0) {
+            let model;
+            if (currentAlgoId === 'logistic_regression') {
+                model = solveLogisticRegression(currentPoints, customModelParams.c);
+            } else if (currentAlgoId === 'svm') {
+                model = solveSVM(currentPoints, customModelParams.c);
+            } else if (currentAlgoId === 'naive_bayes') {
+                model = fitNaiveBayes(currentPoints);
+            } else if (currentAlgoId === 'decision_tree') {
+                model = fitDecisionTree(currentPoints, customModelParams.maxDepth);
+            } else if (currentAlgoId === 'random_forest') {
+                model = fitRandomForest(currentPoints, customModelParams.numTrees, customModelParams.maxDepth);
+            } else if (currentAlgoId === 'xgboost') {
+                model = fitXGBoost(currentPoints, customModelParams.numTrees, customModelParams.maxDepth, customModelParams.lr);
+            }
+
+            // Draw grid prediction boundary
+            const gridSize = 80;
+            const cellW = w / gridSize;
+            const cellH = h / gridSize;
+            
+            for (let gx = 0; gx < gridSize; gx++) {
+                for (let gy = 0; gy < gridSize; gy++) {
+                    const px = (gx + 0.5) / gridSize;
+                    const py = 1.0 - (gy + 0.5) / gridSize; // map from canvas Y to ML Y
+                    
+                    let predProb = 0.5;
+                    if (currentAlgoId === 'knn') {
+                        predProb = queryKNN(currentPoints, px, py, customModelParams.k);
+                    } else if (currentAlgoId === 'logistic_regression') {
+                        predProb = predictLogistic(model, px, py);
+                    } else if (currentAlgoId === 'svm') {
+                        predProb = predictSVM(model, currentPoints, px, py);
+                    } else if (currentAlgoId === 'naive_bayes') {
+                        predProb = predictNaiveBayes(model, px, py);
+                    } else if (currentAlgoId === 'decision_tree') {
+                        predProb = predictTree(model, px, py);
+                    } else if (currentAlgoId === 'random_forest') {
+                        predProb = predictRandomForest(model, px, py);
+                    } else if (currentAlgoId === 'xgboost') {
+                        predProb = predictXGBoost(model, px, py);
+                    }
+
+                    // Map prediction color
+                    // Purple is Class 0 (high value means class 1, which is cyan)
+                    ctx.fillStyle = getInterpolatedColor(predProb);
+                    ctx.fillRect(gx * cellW, gy * cellH, cellW + 0.5, cellH + 0.5);
+                }
+            }
+        } 
+        
+        else if (currentAlgoId === 'kmeans' && currentPoints.length > 0) {
+            let res = solveKMeans(currentPoints, customModelParams.kClusters);
+            
+            // Draw Voronoi cells of Clustering
+            const gridSize = 80;
+            const cellW = w / gridSize;
+            const cellH = h / gridSize;
+            
+            if (res.centroids.length > 0) {
+                for (let gx = 0; gx < gridSize; gx++) {
+                    for (let gy = 0; gy < gridSize; gy++) {
+                        const px = (gx + 0.5) / gridSize;
+                        const py = 1.0 - (gy + 0.5) / gridSize;
+                        
+                        let minDist = Infinity;
+                        let bestCluster = 0;
+                        for (let c = 0; c < res.centroids.length; c++) {
+                            let d = (px - res.centroids[c].x)**2 + (py - res.centroids[c].y)**2;
+                            if (d < minDist) {
+                                minDist = d;
+                                bestCluster = c;
+                            }
+                        }
+                        ctx.fillStyle = getClusterPastelColor(bestCluster);
+                        ctx.fillRect(gx * cellW, gy * cellH, cellW + 0.5, cellH + 0.5);
+                    }
+                }
+            }
+        }
+
+        // 2. DRAW GRAPH GRID LINES
+        drawGridLines(w, h);
+
+        // 3. DRAW SPECIFIC ALGORITHM ARTIFACTS
+        if (currentPoints.length > 0) {
+            if (currentAlgoId === 'linear_regression') {
+                let model = solveLinearRegression(currentPoints);
+                if (model) {
+                    // Draw linear regression line
+                    ctx.strokeStyle = '#6366F1';
+                    ctx.lineWidth = 4;
+                    ctx.shadowColor = '#6366F1';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    
+                    const xStart = 0;
+                    const yStart = model.m * xStart + model.c;
+                    const xEnd = 1.0;
+                    const yEnd = model.m * xEnd + model.c;
+                    
+                    ctx.moveTo(xStart * w, h - (yStart * h));
+                    ctx.lineTo(xEnd * w, h - (yEnd * h));
+                    ctx.stroke();
+                    
+                    ctx.shadowBlur = 0; // reset
+                    
+                    updateMetricsPanel({
+                        'R² 分數 (R2 Score)': model.r2.toFixed(3),
+                        '均方誤差 (MSE)': model.mse.toFixed(4)
+                    });
+                }
+            } 
+            else if (currentAlgoId === 'pca') {
+                let pca = solvePCA(currentPoints);
+                if (pca) {
+                    const cx = pca.meanX * w;
+                    const cy = h - (pca.meanY * h);
+                    
+                    // Draw Center Mean
+                    ctx.fillStyle = '#ff4757';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 6, 0, 2*Math.PI);
+                    ctx.fill();
+                    
+                    // Draw PC1 Vector
+                    ctx.strokeStyle = '#6366F1';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    let scale1 = Math.sqrt(pca.pc1.eigenvalue) * 1.5; // length scaling
+                    ctx.lineTo(cx + pca.pc1.x * w * scale1, cy - pca.pc1.y * h * scale1);
+                    ctx.stroke();
+                    
+                    // Draw PC2 Vector
+                    ctx.strokeStyle = '#06B6D4';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    let scale2 = Math.sqrt(pca.pc2.eigenvalue) * 1.5;
+                    ctx.lineTo(cx + pca.pc2.x * w * scale2, cy - pca.pc2.y * h * scale2);
+                    ctx.stroke();
+                    
+                    updateMetricsPanel({
+                        'PC1 解釋變異比': `${(pca.pc1.varRatio * 100).toFixed(1)}%`,
+                        'PC2 解釋變異比': `${(pca.pc2.varRatio * 100).toFixed(1)}%`
+                    });
+                }
+            } 
+            else if (currentAlgoId === 'kmeans') {
+                let res = solveKMeans(currentPoints, customModelParams.kClusters);
+                
+                // Color points according to their cluster assignments
+                currentPoints.forEach((pt, i) => {
+                    let clusterIdx = res.assignments[i];
+                    pt.clusterLabel = clusterIdx;
+                });
+                
+                // Draw Centroids
+                res.centroids.forEach((c, idx) => {
+                    const cx = c.x * w;
+                    const cy = h - (c.y * h);
+                    
+                    // Large star or crosshair for centroid
+                    ctx.fillStyle = getClusterPrimaryColor(idx);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2.5;
+                    ctx.shadowColor = getClusterPrimaryColor(idx);
+                    ctx.shadowBlur = 15;
+                    
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 10, 0, 2*Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Draw cross symbol
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 5, cy); ctx.lineTo(cx + 5, cy);
+                    ctx.moveTo(cx, cy - 5); ctx.lineTo(cx, cy + 5);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    ctx.shadowBlur = 0;
+                });
+                
+                updateMetricsPanel({
+                    '群內平方和 (WCSS)': res.wcss.toFixed(4)
+                });
+            }
+            else {
+                // Classification algorithm updates accuracy
+                let model;
+                if (currentAlgoId === 'logistic_regression') model = solveLogisticRegression(currentPoints, customModelParams.c);
+                else if (currentAlgoId === 'svm') model = solveSVM(currentPoints, customModelParams.c);
+                else if (currentAlgoId === 'naive_bayes') model = fitNaiveBayes(currentPoints);
+                else if (currentAlgoId === 'decision_tree') model = fitDecisionTree(currentPoints, customModelParams.maxDepth);
+                else if (currentAlgoId === 'random_forest') model = fitRandomForest(currentPoints, customModelParams.numTrees, customModelParams.maxDepth);
+                else if (currentAlgoId === 'xgboost') model = fitXGBoost(currentPoints, customModelParams.numTrees, customModelParams.maxDepth, customModelParams.lr);
+
+                let correct = 0;
+                for (let p of currentPoints) {
+                    let prob = 0.5;
+                    if (currentAlgoId === 'knn') prob = queryKNN(currentPoints, p.x, p.y, customModelParams.k);
+                    else if (currentAlgoId === 'logistic_regression') prob = predictLogistic(model, p.x, p.y);
+                    else if (currentAlgoId === 'svm') prob = predictSVM(model, currentPoints, p.x, p.y);
+                    else if (currentAlgoId === 'naive_bayes') prob = predictNaiveBayes(model, p.x, p.y);
+                    else if (currentAlgoId === 'decision_tree') prob = predictTree(model, p.x, p.y);
+                    else if (currentAlgoId === 'random_forest') prob = predictRandomForest(model, p.x, p.y);
+                    else if (currentAlgoId === 'xgboost') prob = predictXGBoost(model, p.x, p.y);
+
+                    let pred = prob >= 0.5 ? 1 : 0;
+                    if (pred === p.label) correct++;
+                }
+                const acc = correct / currentPoints.length;
+                updateMetricsPanel({
+                    '模型訓練精度 (Acc)': `${(acc * 100).toFixed(1)}%`,
+                    '數據樣本總數': currentPoints.length
+                });
+            }
+        } else {
+            // No points
+            updateMetricsPanel({
+                '系統狀態': '等待添加數據點',
+                '數據樣本總數': 0
+            });
+        }
+
+        // 4. DRAW DATA POINTS ON CANVAS
+        currentPoints.forEach(p => {
+            const cx = p.x * w;
+            const cy = h - (p.y * h);
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
+            
+            // Choose color representation depending on Algorithm Category
+            if (currentAlgoId === 'kmeans') {
+                ctx.fillStyle = getClusterPrimaryColor(p.clusterLabel !== undefined ? p.clusterLabel : 0);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+            } else if (currentAlgoId === 'linear_regression' || currentAlgoId === 'pca') {
+                ctx.fillStyle = '#818cf8';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+            } else {
+                // Classification (Purple vs Cyan)
+                if (p.label === 0) {
+                    ctx.fillStyle = '#a855f7'; // Purple
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.shadowColor = '#a855f7';
+                } else {
+                    ctx.fillStyle = '#06b6d4'; // Cyan
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.shadowColor = '#06b6d4';
+                }
+                ctx.shadowBlur = 8;
+                ctx.lineWidth = 1.5;
+            }
+            ctx.fill();
+            ctx.stroke();
+            ctx.shadowBlur = 0; // reset
+        });
+    }
+
+    function drawGridLines(w, h) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 1;
+        
+        // Horizontal lines
+        for (let i = 1; i < 10; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * h / 10);
+            ctx.lineTo(w, i * h / 10);
+            ctx.stroke();
+        }
+        // Vertical lines
+        for (let i = 1; i < 10; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * w / 10, 0);
+            ctx.lineTo(i * w / 10, h);
+            ctx.stroke();
+        }
+    }
+
+    // Draws temporary query distance lines for KNN hover state
+    function drawKNNHoverScope(cx, cy, x, y) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const k = customModelParams.k || 5;
+        
+        let dists = currentPoints.map(p => {
+            let d = (p.x - x)**2 + (p.y - y)**2;
+            return { dist: d, p };
+        });
+        dists.sort((a, b) => a.dist - b.dist);
+        let activeK = Math.min(k, dists.length);
+
+        if (activeK > 0) {
+            // Draw lines to K-nearest neighbors
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1.5;
+            for(let i = 0; i < activeK; i++) {
+                const targetX = dists[i].p.x * w;
+                const targetY = h - (dists[i].p.y * h);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(targetX, targetY);
+                ctx.stroke();
+            }
+
+            // Draw bounding circle spanning up to the K-th neighbor
+            const maxD = Math.sqrt(dists[activeK - 1].dist);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(cx, cy, maxD * w, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]); // reset
+        }
+    }
+
+    // ----------------------------------------------------
+    // METRICS CONTROLLER
+    // ----------------------------------------------------
+    function updateMetricsPanel(metrics) {
+        const grid = document.getElementById('metricsGrid');
+        grid.innerHTML = '';
+        
+        Object.entries(metrics).forEach(([lbl, val]) => {
+            const card = document.createElement('div');
+            card.className = 'metric-card';
+            card.innerHTML = `
+                <div class="metric-val">${val}</div>
+                <div class="metric-lbl">${lbl}</div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // ----------------------------------------------------
+    // COLOR UTILITIES
+    // ----------------------------------------------------
+    function getInterpolatedColor(predProb) {
+        // Interpolate between light Purple (class 0) and light Cyan (class 1)
+        // Purple components (R: 168, G: 85, B: 247)
+        // Cyan components (R: 6, G: 182, B: 212)
+        // Low opacity for decision boundary background
+        const opacity = 0.22;
+        const r = Math.round(168 + (6 - 168) * predProb);
+        const g = Math.round(85 + (182 - 85) * predProb);
+        const b = Math.round(247 + (212 - 247) * predProb);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+
+    function getClusterPrimaryColor(idx) {
+        const colors = ['#f43f5e', '#10b981', '#fbbf24', '#3b82f6', '#8b5cf6', '#ec4899'];
+        return colors[idx % colors.length];
+    }
+
+    function getClusterPastelColor(idx) {
+        // Opacity version for K-Means Voronoi background
+        const colorsRGB = [
+            'rgba(244, 63, 94, 0.2)', // rose
+            'rgba(16, 185, 129, 0.2)', // emerald
+            'rgba(251, 191, 36, 0.2)', // amber
+            'rgba(59, 130, 246, 0.2)', // blue
+            'rgba(139, 92, 246, 0.2)', // violet
+            'rgba(236, 72, 153, 0.2)'  // pink
+        ];
+        return colorsRGB[idx % colorsRGB.length];
+    }
+</script>
+
+</body>
+</html>
